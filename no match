@@ -1,0 +1,123 @@
+key_fuentes
+
+edf_notas
+fixednotas
+
+edf_toni
+fixedtoni
+
+################################# TONI ########################
+##these are the matches that need to be joined at end (match == 1)
+match <- edf_toni%>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_3')) %>%
+  select(-6,-8) %>%
+  mutate(match = ifelse(toni_estudiante == estudiante,1,0)) %>%
+  filter(match == 1)%>%
+  select(1,2,3,4,5)%>%
+  rename(nombre_4=4, estudiante=5)
+
+
+### these are the ways to match those that don't match (match == 0)
+##best way to fix errors by column 
+match4 <- edf_toni %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_3'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(toni_estudiante == estudiante,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_4 = nombre_4.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+match3 <- edf_toni %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(toni_estudiante == estudiante,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_3 = nombre_3.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+#
+match2 <- edf_toni %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_3','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(toni_estudiante == estudiante,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_2 = nombre_2.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+#
+match1 <- edf_toni %>%
+  left_join(key_fuentes, by = c('nombre_2','nombre_3','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(toni_estudiante == estudiante,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_1 = nombre_1.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+fixedtoni <- rbind(match, match1, match2, match3, match4)%>%
+  arrange(estudiante)
+
+################################### NOTAS ###################
+
+## to make another estudiante column to keep with toni data- 
+#while comparing notas to fuentes
+edf_notas <- edf_notas%>%
+  mutate(notas_estudiante = estudiante)
+
+match <- edf_notas%>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_3')) %>%
+  mutate(match = ifelse(estudiante.x == estudiante.y,1,0)) %>%
+  filter(match == 1)%>%
+  select(1,2,3,4,5)%>%
+  rename(nombre_4=4, estudiante=5)
+
+### these are the ways to match those that don't match (match == 0)
+##best way to fix errors by column 
+match4 <- edf_notas %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_3'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(estudiante.x == estudiante.y,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_4 = nombre_4.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+#
+match3 <- edf_notas %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_2','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(estudiante.x == estudiante.y,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_3 = nombre_3.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+#
+match2 <- edf_notas %>%
+  left_join(key_fuentes, by = c('nombre_1','nombre_3','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(estudiante.x == estudiante.y,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_2 = nombre_2.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+#
+match1 <- edf_notas %>%
+  left_join(key_fuentes, by = c('nombre_2','nombre_3','nombre_4'))%>%
+  select(-6,-8)%>%
+  mutate(match = ifelse(estudiante.x == estudiante.y,1,0))%>%
+  filter(match == 0) %>%
+  mutate(nombre_1 = nombre_1.y) %>%
+  select(nombre_1,nombre_2,nombre_3,nombre_4) %>%
+  mutate(estudiante = paste0(nombre_1,nombre_2,nombre_3,nombre_4))
+
+fixednotas <- rbind(match, match1, match2, match3, match4)%>%
+  arrange(estudiante)
+
+##### FUENTES to get rid of fecha de nacimiento
+key_fuentes <- key_fuentes%>%
+  select(1,2,3,4,6)
